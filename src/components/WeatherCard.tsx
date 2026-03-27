@@ -2,8 +2,21 @@ import { useState } from "react";
 import { getWeatherByCity, getCitySuggestions } from "../services/weatherApi";
 import type { WeatherData, CityItem } from "../types/weather.ts"
 import Forecast from "./Forecast";
+import WeatherInsights from "./WeatherInsights";
 
-const WeatherCard = () => {
+interface MapLocation {
+  lat: number;
+  lon: number;
+  weather: WeatherData | null;
+  loading: boolean;
+}
+
+interface WeatherCardProps {
+  onCitySearch?: (weatherData: WeatherData) => void;
+  mapClickedLocation?: MapLocation | null;
+}
+
+const WeatherCard = ({ onCitySearch, mapClickedLocation }: WeatherCardProps) => {
   const [city, setCity] = useState<string>("");
   const [data, setData] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +58,7 @@ const WeatherCard = () => {
       const res = await getWeatherByCity(searchCity);
       setData(res);
       setCity("");
+      onCitySearch?.(res);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch weather";
@@ -68,6 +82,10 @@ const WeatherCard = () => {
       fetchWeather();
     }
   };
+
+  // Determine which data to display - prefer searched data, then map clicked
+  const displayData = data || mapClickedLocation?.weather;
+  const isMapClicked = !data && mapClickedLocation?.weather;
 
   return (
     <div className="weather-card">
@@ -117,46 +135,57 @@ const WeatherCard = () => {
 
       {error && <div className="error-message">{error}</div>}
 
-      {data && (
+      {displayData && (
         <div className="weather-result">
           <div className="location-header">
-            <h2>{data.name}, {data.sys.country}</h2>
-            <p className="weather-main">{data.weather[0].main}</p>
+            {isMapClicked && <p style={{ fontSize: "0.9em", color: "#667eea", marginBottom: "10px" }}>📌 From Map Click</p>}
+            <h2>{displayData.name}, {displayData.sys.country}</h2>
+            <p className="weather-main">{displayData.weather[0].main}</p>
           </div>
 
           <div className="weather-details">
             <div className="detail-item">
               <span className="label">Temperature</span>
-              <span className="value">{Math.round(data.main.temp)}°C</span>
+              <span className="value">{Math.round(displayData.main.temp)}°C</span>
             </div>
             <div className="detail-item">
               <span className="label">Feels Like</span>
-              <span className="value">{Math.round(data.main.feels_like)}°C</span>
+              <span className="value">{Math.round(displayData.main.feels_like)}°C</span>
             </div>
             <div className="detail-item">
               <span className="label">Humidity</span>
-              <span className="value">{data.main.humidity}%</span>
+              <span className="value">{displayData.main.humidity}%</span>
             </div>
             <div className="detail-item">
               <span className="label">Wind Speed</span>
-              <span className="value">{data.wind.speed.toFixed(1)} m/s</span>
+              <span className="value">{displayData.wind.speed.toFixed(1)} m/s</span>
             </div>
             <div className="detail-item">
               <span className="label">Pressure</span>
-              <span className="value">{data.main.pressure} hPa</span>
+              <span className="value">{displayData.main.pressure} hPa</span>
             </div>
             <div className="detail-item">
               <span className="label">Visibility</span>
-              <span className="value">{(data.visibility / 1000).toFixed(1)} km</span>
+              <span className="value">{(displayData.visibility / 1000).toFixed(1)} km</span>
+            </div>
+            <div className="detail-item">
+              <span className="label">Sunrise</span>
+              <span className="value">{new Date(displayData.sys.sunrise * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+            </div>
+            <div className="detail-item">
+              <span className="label">Sunset</span>
+              <span className="value">{new Date(displayData.sys.sunset * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
             </div>
           </div>
 
           <div className="description">
-            <p>{data.weather[0].description}</p>
+            <p>{displayData.weather[0].description}</p>
           </div>
 
-          {data.coord && (
-            <Forecast lat={data.coord.lat} lon={data.coord.lon} />
+          <WeatherInsights weather={displayData} />
+
+          {displayData.coord && (
+            <Forecast lat={displayData.coord.lat} lon={displayData.coord.lon} />
           )}
         </div>
       )}
