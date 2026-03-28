@@ -40,8 +40,8 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>🌤 Weather App</h1>
-          <p>Real time weather + location based insights</p>
+          <h1>🌤 Weather Forecast</h1>
+          <p>Real time weather  Location based insights</p>
         </div>
       </header>
 
