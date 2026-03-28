@@ -90,7 +90,7 @@ const WeatherCard = ({ onCitySearch, mapClickedLocation }: WeatherCardProps) => 
   return (
     <div className="weather-card">
       <div className="search-section">
-        <h2>📍 Search Weather by City</h2>
+        <h2>📍 Search Weather by City also works on PINCODE</h2>
         <div className="input-group">
           <div className="search-input-wrapper">
             <input
@@ -99,7 +99,7 @@ const WeatherCard = ({ onCitySearch, mapClickedLocation }: WeatherCardProps) => 
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyPress={handleKeyPress}
               onFocus={() => city.length >= 2 && setShowSuggestions(true)}
-              placeholder="Enter city name (e.g., London, Tokyo)"
+              placeholder="Enter city name (Kolkata, west bengal)"
               disabled={loading}
               autoComplete="off"
             />
@@ -167,6 +167,10 @@ const WeatherCard = ({ onCitySearch, mapClickedLocation }: WeatherCardProps) => 
             <div className="detail-item">
               <span className="label">Visibility</span>
               <span className="value">{(displayData.visibility / 1000).toFixed(1)} km</span>
+            </div>
+            <div className="detail-item">
+              <span className="label">AQI</span>
+              <span className="value">{displayData.aqi || 'N/A'}</span>
             </div>
             <div className="detail-item">
               <span className="label">Sunrise</span>

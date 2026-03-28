@@ -41,7 +41,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <h1>🌤 Weather App</h1>
-          <p>Real-time weather + location based insights</p>
+          <p>Real time weather + location based insights</p>
         </div>
       </header>
 

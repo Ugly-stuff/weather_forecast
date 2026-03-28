@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from "react-leaflet";
 import { useMap } from "react-leaflet";
 import axios from "axios";
+import { getAQI } from "../services/weatherApi";
 import type { WeatherData } from "../types/weather";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -84,7 +85,10 @@ const MapWithWeather = ({
                         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
                     );
 
-                    onCurrentLocationDetected(res.data, [lat, lon]);
+                    const aqi = await getAQI(lat, lon);
+                    const weatherWithAQI = { ...res.data, aqi };
+
+                    onCurrentLocationDetected(weatherWithAQI, [lat, lon]);
                     setError(null);
                 } catch (err) {
                     setError(
@@ -125,10 +129,13 @@ const MapWithWeather = ({
                 `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
             );
 
+            const aqi = await getAQI(lat, lon);
+            const weatherWithAQI = { ...res.data, aqi };
+
             onMapLocationClick({
                 lat,
                 lon,
-                weather: res.data,
+                weather: weatherWithAQI,
                 loading: false,
             });
             setError(null);
@@ -171,7 +178,10 @@ const MapWithWeather = ({
                         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
                     );
 
-                    onCurrentLocationDetected(res.data, [lat, lon]);
+                    const aqi = await getAQI(lat, lon);
+                    const weatherWithAQI = { ...res.data, aqi };
+
+                    onCurrentLocationDetected(weatherWithAQI, [lat, lon]);
                     setError(null);
                 } catch (err) {
                     setError(
@@ -253,6 +263,7 @@ const MapWithWeather = ({
                                         <p className="humidity">💧 Humidity: {currentLocationWeather.main.humidity}%</p>
                                         <p className="wind">💨 Wind: {currentLocationWeather.wind.speed.toFixed(1)} m/s</p>
                                         <p className="pressure">🌡️ Pressure: {currentLocationWeather.main.pressure} hPa</p>
+                                        <p className="aqi">💨 AQI: {currentLocationWeather.aqi || 'N/A'}</p>
                                     </div>
                                 </div>
                             ) : (
